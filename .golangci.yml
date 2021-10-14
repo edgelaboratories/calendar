@@ -9,11 +9,11 @@ linters:
     - lll
     - nlreturn
     - wsl
-    - scopelint
-    - golint
-    - gomoddirectives
-    - interfacer
-    - maligned
+    - scopelint # deprecated
+    - golint # deprecated
+    - gomoddirectives # deprecated
+    - interfacer # deprecated
+    - maligned # deprecated
 
 issues:
   exclude-rules:
