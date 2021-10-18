@@ -15,20 +15,20 @@ func newBusinessCalendar() *businessCalendar {
 }
 
 // isActive returns true if the input date is active.
-func (c businessCalendar) IsActive(date date.Date) bool {
+func (c businessCalendar) isActive(date date.Date) bool {
 	return c.isBusinessDay(date)
 }
 
-// yearDuration returns the standard year duration according to the
+// daysInYear returns the standard year duration according to the
 // business-days calendar.
-func (c businessCalendar) DaysInYear() int {
+func (c businessCalendar) daysInYear() int {
 	return 252
 }
 
-// Add adds an input number of active days to the input origin date.
+// add adds an input number of active days to the input origin date.
 // The days parameter is allowed to be negative.
 // This method is idempotent when a zero-days shift is requested.
-func (c businessCalendar) Add(origin date.Date, days int) date.Date {
+func (c businessCalendar) add(origin date.Date, days int) date.Date {
 	if days == 0 {
 		// In order for the method to be idempotent, the same result must
 		// be obtained by shifting forwards and backwards (or viceversa)
@@ -66,14 +66,14 @@ func (c businessCalendar) Add(origin date.Date, days int) date.Date {
 	return current.Add((days / 5) * 7)
 }
 
-// DaysBetween computes the number of active dates between
+// daysBetween computes the number of active dates between
 // from (excluded) and to (included).
 // This implies there are zero business days from a Friday to
 // a weekend day, but there is one between a weekend day and
 // a Monday.
-func (c businessCalendar) DaysBetween(from, to date.Date) int {
+func (c businessCalendar) daysBetween(from, to date.Date) int {
 	if from.After(to) {
-		return -c.DaysBetween(to, from)
+		return -c.daysBetween(to, from)
 	}
 
 	// Shift both dates to the closest Sunday and then add

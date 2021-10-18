@@ -4,17 +4,39 @@ import "github.com/fxtlabs/date"
 
 // Calendar exposes functions to manipulate dates with respect to a calendar.
 type Calendar struct {
-	dayCounter
-
+	dayCounter dayCounter
 	convention Convention
 }
 
 // New returns a calendar based on the specified input convention.
 func New(convention Convention) *Calendar {
 	return &Calendar{
-		newDayCounter(convention),
-		convention,
+		dayCounter: newDayCounter(convention),
+		convention: convention,
 	}
+}
+
+// IsActive returns true if the input date is active.
+func (c *Calendar) IsActive(date date.Date) bool {
+	return c.dayCounter.isActive(date)
+}
+
+// add adds an input number of active days to the input origin date.
+// The days parameter is allowed to be negative.
+// This method is idempotent for zero-days shifts.
+func (c *Calendar) Add(origin date.Date, days int) date.Date {
+	return c.dayCounter.add(origin, days)
+}
+
+// DaysBetween computes the number of active dates between
+// from (excluded) and to (included).
+func (c *Calendar) DaysBetween(from, to date.Date) int {
+	return c.dayCounter.daysBetween(from, to)
+}
+
+// DaysInYear returns the calendar's standard year duration (in days).
+func (c *Calendar) DaysInYear() int {
+	return c.dayCounter.daysInYear()
 }
 
 // LatestBefore returns the latest date before or equal to

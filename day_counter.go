@@ -10,10 +10,10 @@ import "github.com/fxtlabs/date"
 // The methods of the daycounter are implementation-dependent
 // and allow to exploit the calendar properties.
 type dayCounter interface {
-	IsActive(date date.Date) bool
-	DaysInYear() int
-	DaysBetween(from, to date.Date) int
-	Add(origin date.Date, days int) date.Date
+	isActive(date date.Date) bool
+	daysInYear() int
+	daysBetween(from, to date.Date) int
+	add(origin date.Date, days int) date.Date
 }
 
 func newDayCounter(convention Convention) dayCounter {
