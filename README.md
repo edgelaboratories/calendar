@@ -1,5 +1,9 @@
 # calendar
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/edgelaboratories/calendar.svg)](https://pkg.go.dev/github.com/edgelaboratories/calendar)
+![Build Status](https://github.com/edgelaboratories/calendar/workflows/Test/badge.svg)
+![GolangCI Lint](https://github.com/edgelaboratories/calendar/workflows/GolangCI/badge.svg)
+
 Provide basic operations on calendars in Go.
 
 ## Install
