@@ -13,25 +13,25 @@ func newPhysicalCalendar() *physicalCalendar {
 // isActive returns whether the input date is active according
 // to the physical calendar. By definition the result is true
 // for every input date.
-func (c physicalCalendar) IsActive(date date.Date) bool {
+func (c physicalCalendar) isActive(date date.Date) bool {
 	return true
 }
 
-// yearDuration returns the standard year duration according to the
+// daysInYear returns the standard year duration according to the
 // physical-days calendar.
-func (c physicalCalendar) DaysInYear() int {
+func (c physicalCalendar) daysInYear() int {
 	return 365
 }
 
-// Add adds an input number of active days to the input origin date.
+// add adds an input number of active days to the input origin date.
 // The days parameter is allowed to be negative.
-func (c physicalCalendar) Add(origin date.Date, days int) date.Date {
+func (c physicalCalendar) add(origin date.Date, days int) date.Date {
 	return origin.Add(days)
 }
 
-// DaysBetween computes the number of active dates between
+// daysBetween computes the number of active dates between
 // from (excluded) and to (included).
 // The from parameter is supposed not to be after to.
-func (c physicalCalendar) DaysBetween(from, to date.Date) int {
+func (c physicalCalendar) daysBetween(from, to date.Date) int {
 	return to.Sub(from)
 }

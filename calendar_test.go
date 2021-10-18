@@ -65,6 +65,54 @@ func Test_Calendar_DaysInYear(t *testing.T) {
 	assert.Equal(t, 365, New(CalendarDays).DaysInYear())
 }
 
+func Test_Calendar_Add(t *testing.T) {
+	for _, tc := range []struct {
+		convention Convention
+		origin     date.Date
+		days       int
+		expected   date.Date
+	}{
+		{
+			CalendarDays,
+			date.New(2021, time.October, 18),
+			7,
+			date.New(2021, time.October, 25),
+		},
+		{
+			BusinessDays,
+			date.New(2021, time.October, 18),
+			5,
+			date.New(2021, time.October, 25),
+		},
+	} {
+		assert.Equal(t, tc.expected, New(tc.convention).Add(tc.origin, tc.days))
+	}
+}
+
+func Test_Calendar_DaysBetween(t *testing.T) {
+	for _, tc := range []struct {
+		convention Convention
+		from       date.Date
+		to         date.Date
+		expected   int
+	}{
+		{
+			CalendarDays,
+			date.New(2021, time.October, 18),
+			date.New(2021, time.October, 25),
+			7,
+		},
+		{
+			BusinessDays,
+			date.New(2021, time.October, 18),
+			date.New(2021, time.October, 25),
+			5,
+		},
+	} {
+		assert.Equal(t, tc.expected, New(tc.convention).DaysBetween(tc.from, tc.to))
+	}
+}
+
 func Benchmark_Calendar_Add(b *testing.B) {
 	var (
 		origin = date.New(2021, time.January, 1)
