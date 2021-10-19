@@ -1,7 +1,7 @@
 # calendar
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/edgelaboratories/calendar.svg)](https://pkg.go.dev/github.com/edgelaboratories/calendar)
-![GolangCI Lint](https://github.com/edgelaboratories/calendar/workflows/GolangCI/badge.svg)
+![GolangCI Lint](https://github.com/edgelaboratories/calendar/workflows/Golangci-Lint/badge.svg)
 
 Provide basic operations on calendars in Go.
 
