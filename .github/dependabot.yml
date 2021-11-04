@@ -4,9 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "04:00"
-    reviewers:
-      - antonioiubatti93
 
   - package-ecosystem: "github-actions"
     directory: "/"
