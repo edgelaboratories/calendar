@@ -16,8 +16,6 @@ jobs:
   semgrep:
     name: Scan
     runs-on: ubuntu-latest
-    env:
-      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
     container:
       image: returntocorp/semgrep
     # Skip any PR created by Dependabot to avoid permission issues
