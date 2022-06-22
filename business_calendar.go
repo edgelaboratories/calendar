@@ -29,41 +29,30 @@ func (c businessCalendar) daysInYear() int {
 // The days parameter is allowed to be negative.
 // This method is idempotent when a zero-days shift is requested.
 func (c businessCalendar) add(origin date.Date, days int) date.Date {
-	if days == 0 {
-		// In order for the method to be idempotent, the same result must
-		// be obtained by shifting forwards and backwards (or viceversa)
-		// by a single day. If the origin is already a business day, no
-		// shift is applied.
-		return c.previousBusinessDay(origin)
-	}
-
-	if days > 0 {
-		current := c.nextBusinessDay(origin)
-		signedDays := days
-		if c.isWeekend(origin) {
-			signedDays--
-		}
-
-		// Count from the first day of the week and go back to the previous
-		// business day when landing on a weekend.
-		weekDay := int(current.Weekday())
-		dayShift := signedDays%5 + weekDay
-		weekShift := signedDays/5 + dayShift/5
-
-		return c.previousBusinessDay(current.Add(7*weekShift + dayShift%5 - weekDay))
-	}
-
-	// The algorithm runs in linear time for negative shifts.
-	// This should be improved at some point.
+	// go back to last Friday if it is a weekend
 	current := c.previousBusinessDay(origin)
-	for shiftDays := (-days) % 5; shiftDays > 0; {
-		current = current.Add(-1)
-		if c.isBusinessDay(current) {
-			shiftDays--
-		}
+
+	if days == 0 {
+		return current
 	}
 
-	return current.Add((days / 5) * 7)
+	// Number of weeks to shift (forward or backward)
+	nbWeeks := days / 5
+
+	// Number of business days left after shifting by nbWeeks
+	nbDaysLeft := days - (nbWeeks * 5)
+
+	// Total number of days (this number will eventually be incremented below)
+	nbDays := nbWeeks*7 + nbDaysLeft
+
+	// If the nbDaysLeft does not fit in the current week, then add two days for the weekend
+	if days > 0 && int(time.Friday-current.Weekday()) < nbDaysLeft {
+		nbDays += 2
+	} else if days < 0 && int(current.Weekday()-time.Monday) < -nbDaysLeft {
+		nbDays -= 2
+	}
+
+	return current.Add(nbDays)
 }
 
 // daysBetween computes the number of active dates between
