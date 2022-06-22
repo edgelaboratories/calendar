@@ -337,3 +337,35 @@ func Test_businessCalendar_ConsistencyChecks(t *testing.T) {
 		}
 	})
 }
+
+func benchmarkShiftBusinessDays(b *testing.B, shift int, date date.Date) {
+	b.Helper()
+	calendar := newBusinessCalendar()
+	for n := 0; n < b.N; n++ {
+		_ = calendar.add(date, shift)
+	}
+}
+
+func BenchmarkShiftBusinessDays_17(b *testing.B) {
+	date := date.New(2017, time.November, 9)
+	shift := 17
+	benchmarkShiftBusinessDays(b, shift, date)
+}
+
+func BenchmarkShiftminusBusinessDays_m17(b *testing.B) {
+	date := date.New(2017, time.November, 9)
+	shift := -17
+	benchmarkShiftBusinessDays(b, shift, date)
+}
+
+func BenchmarkShiftBusinessDays_7778(b *testing.B) {
+	date := date.New(2017, time.November, 9)
+	shift := 7778
+	benchmarkShiftBusinessDays(b, shift, date)
+}
+
+func BenchmarkShiftBusinessDays_m7778(b *testing.B) {
+	date := date.New(2017, time.November, 9)
+	shift := -7778
+	benchmarkShiftBusinessDays(b, shift, date)
+}
