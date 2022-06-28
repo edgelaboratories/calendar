@@ -42,15 +42,11 @@ func (c businessCalendar) add(origin date.Date, days int) date.Date {
 	// Number of business days left after shifting by nbWeeks
 	nbDaysLeft := days - (nbWeeks * 5)
 
+	// If the nbDaysLeft does not fit in the current week, then add two days for the weekend.
+	nbDaysLeft = addWeekendDays(current, nbDaysLeft, days)
+
 	// Total number of days (this number will eventually be incremented below)
 	nbDays := nbWeeks*7 + nbDaysLeft
-
-	// If the nbDaysLeft does not fit in the current week, then add two days for the weekend
-	if days > 0 && int(time.Friday-current.Weekday()) < nbDaysLeft {
-		nbDays += 2
-	} else if days < 0 && int(current.Weekday()-time.Monday) < -nbDaysLeft {
-		nbDays -= 2
-	}
 
 	return current.Add(nbDays)
 }
@@ -126,4 +122,15 @@ func (c businessCalendar) closestBusinessDay(origin date.Date, forwards bool) da
 			return current
 		}
 	}
+}
+
+// addWeekendDays adds or removes 2 days to the day count (nbDaysLeft) to skip the weekend days.
+func addWeekendDays(current date.Date, nbDaysLeft, days int) int {
+	if days > 0 && int(time.Friday-current.Weekday()) < nbDaysLeft {
+		return nbDaysLeft + 2
+	} else if days < 0 && int(current.Weekday()-time.Monday) < -nbDaysLeft {
+		return nbDaysLeft - 2
+	}
+
+	return nbDaysLeft
 }
