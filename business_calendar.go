@@ -69,6 +69,7 @@ func (c businessCalendar) daysBetween(from, to date.Date) int {
 		start = start.Add(2)
 	case time.Saturday:
 		start = start.Add(1)
+	case time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Sunday:
 	}
 
 	// Shift end date to previous Friday if on Saturday or Sunday.
@@ -77,6 +78,7 @@ func (c businessCalendar) daysBetween(from, to date.Date) int {
 		end = end.Add(-1)
 	case time.Sunday:
 		end = end.Add(-2)
+	case time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday:
 	}
 
 	// Compute raw day difference.
