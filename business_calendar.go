@@ -128,7 +128,9 @@ func (c businessCalendar) closestBusinessDay(origin date.Date, forwards bool) da
 func addWeekendDays(current date.Date, nbDaysLeft, days int) int {
 	if days > 0 && int(time.Friday-current.Weekday()) < nbDaysLeft {
 		return nbDaysLeft + 2
-	} else if days < 0 && int(current.Weekday()-time.Monday) < -nbDaysLeft {
+	}
+
+	if days < 0 && int(current.Weekday()-time.Monday) < -nbDaysLeft {
 		return nbDaysLeft - 2
 	}
 

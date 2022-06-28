@@ -342,7 +342,7 @@ func BenchmarkShiftBusinessDays(b *testing.B) {
 	calendar := newBusinessCalendar()
 	startingDate := date.New(2017, time.November, 9)
 
-	for _, benchmarkCase := range []struct {
+	for _, bc := range []struct {
 		name  string
 		shift int
 	}{
@@ -363,7 +363,7 @@ func BenchmarkShiftBusinessDays(b *testing.B) {
 			17,
 		},
 	} {
-		bc := benchmarkCase
+		bc := bc
 		b.Run(bc.name, func(b *testing.B) {
 			for n := 0; n < b.N; n++ {
 				_ = calendar.add(startingDate, bc.shift)
