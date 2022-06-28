@@ -29,41 +29,26 @@ func (c businessCalendar) daysInYear() int {
 // The days parameter is allowed to be negative.
 // This method is idempotent when a zero-days shift is requested.
 func (c businessCalendar) add(origin date.Date, days int) date.Date {
-	if days == 0 {
-		// In order for the method to be idempotent, the same result must
-		// be obtained by shifting forwards and backwards (or viceversa)
-		// by a single day. If the origin is already a business day, no
-		// shift is applied.
-		return c.previousBusinessDay(origin)
-	}
-
-	if days > 0 {
-		current := c.nextBusinessDay(origin)
-		signedDays := days
-		if c.isWeekend(origin) {
-			signedDays--
-		}
-
-		// Count from the first day of the week and go back to the previous
-		// business day when landing on a weekend.
-		weekDay := int(current.Weekday())
-		dayShift := signedDays%5 + weekDay
-		weekShift := signedDays/5 + dayShift/5
-
-		return c.previousBusinessDay(current.Add(7*weekShift + dayShift%5 - weekDay))
-	}
-
-	// The algorithm runs in linear time for negative shifts.
-	// This should be improved at some point.
+	// go back to last Friday if it is a weekend
 	current := c.previousBusinessDay(origin)
-	for shiftDays := (-days) % 5; shiftDays > 0; {
-		current = current.Add(-1)
-		if c.isBusinessDay(current) {
-			shiftDays--
-		}
+
+	if days == 0 {
+		return current
 	}
 
-	return current.Add((days / 5) * 7)
+	// Number of weeks to shift (forward or backward)
+	nbWeeks := days / 5
+
+	// Number of business days left after shifting by nbWeeks
+	nbDaysLeft := days - (nbWeeks * 5)
+
+	// If the nbDaysLeft does not fit in the current week, then add two days for the weekend.
+	nbDaysLeft = addWeekendDays(current, nbDaysLeft, days)
+
+	// Total number of days (this number will eventually be incremented below)
+	nbDays := nbWeeks*7 + nbDaysLeft
+
+	return current.Add(nbDays)
 }
 
 // daysBetween computes the number of active dates between
@@ -76,31 +61,50 @@ func (c businessCalendar) daysBetween(from, to date.Date) int {
 		return -c.daysBetween(to, from)
 	}
 
-	// Shift both dates to the closest Sunday and then add
-	// the weekly shifts in business days.
-	i := 0
 	start, end := from, to
 
-	if end.Weekday() == time.Saturday {
-		end = end.Add(1)
+	// Shift start date to next Sunday if on Friday or Saturday.
+	switch start.Weekday() {
+	case time.Friday:
+		start = start.Add(2)
+
+	case time.Saturday:
+		start = start.Add(1)
+
+	case time.Monday,
+		time.Tuesday,
+		time.Wednesday,
+		time.Thursday,
+		time.Sunday:
 	}
-	for end.After(start) && !c.isWeekend(end) {
+
+	// Shift end date to previous Friday if on Saturday or Sunday.
+	switch end.Weekday() {
+	case time.Saturday:
 		end = end.Add(-1)
-		i++
+
+	case time.Sunday:
+		end = end.Add(-2)
+
+	case time.Monday,
+		time.Tuesday,
+		time.Wednesday,
+		time.Thursday,
+		time.Friday:
 	}
 
-	for end.After(start) && !c.isWeekend(start) {
-		start = start.Add(1)
-		if !c.isWeekend(start) {
-			i++
-		}
-	}
-	if start.Weekday() == time.Saturday {
-		start = start.Add(1)
+	// Compute raw day difference.
+	rawDaysDiff := end.Sub(start)
+	if rawDaysDiff <= 0 {
+		return 0
 	}
 
-	// The ratio between business and weekly days is 5/7.
-	return i + end.Sub(start)*5/7
+	// Remove a supplementary weekend if start weekday is after end weekday.
+	if start.Weekday() > end.Weekday() {
+		rawDaysDiff -= 2
+	}
+
+	return rawDaysDiff/7*5 + rawDaysDiff%7
 }
 
 // isWeekend returns true if the input date is a non-business
@@ -137,4 +141,17 @@ func (c businessCalendar) closestBusinessDay(origin date.Date, forwards bool) da
 			return current
 		}
 	}
+}
+
+// addWeekendDays adds or removes 2 days to the day count (nbDaysLeft) to skip the weekend days.
+func addWeekendDays(current date.Date, nbDaysLeft, days int) int {
+	if days > 0 && int(time.Friday-current.Weekday()) < nbDaysLeft {
+		return nbDaysLeft + 2
+	}
+
+	if days < 0 && int(current.Weekday()-time.Monday) < -nbDaysLeft {
+		return nbDaysLeft - 2
+	}
+
+	return nbDaysLeft
 }

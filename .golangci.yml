@@ -9,6 +9,7 @@ linters:
     - lll
     - nlreturn
     - wsl
+    - varnamelen
     - scopelint # deprecated
     - golint # deprecated
     - gomoddirectives # deprecated
