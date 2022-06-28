@@ -61,31 +61,36 @@ func (c businessCalendar) daysBetween(from, to date.Date) int {
 		return -c.daysBetween(to, from)
 	}
 
-	// Shift both dates to the closest Sunday and then add
-	// the weekly shifts in business days.
-	i := 0
 	start, end := from, to
 
-	if end.Weekday() == time.Saturday {
-		end = end.Add(1)
+	// Shift start date to next Sunday if on Friday or Saturday.
+	switch start.Weekday() {
+	case time.Friday:
+		start = start.Add(2)
+	case time.Saturday:
+		start = start.Add(1)
 	}
-	for end.After(start) && !c.isWeekend(end) {
+
+	// Shift end date to previous Friday if on Saturday or Sunday.
+	switch end.Weekday() {
+	case time.Saturday:
 		end = end.Add(-1)
-		i++
+	case time.Sunday:
+		end = end.Add(-2)
 	}
 
-	for end.After(start) && !c.isWeekend(start) {
-		start = start.Add(1)
-		if !c.isWeekend(start) {
-			i++
-		}
-	}
-	if start.Weekday() == time.Saturday {
-		start = start.Add(1)
+	// Compute raw day difference.
+	rawDaysDiff := end.Sub(start)
+	if rawDaysDiff <= 0 {
+		return 0
 	}
 
-	// The ratio between business and weekly days is 5/7.
-	return i + end.Sub(start)*5/7
+	// Remove a supplementary weekend if start weekday is after end weekday.
+	if start.Weekday() > end.Weekday() {
+		rawDaysDiff -= 2
+	}
+
+	return rawDaysDiff/7*5 + rawDaysDiff%7
 }
 
 // isWeekend returns true if the input date is a non-business
