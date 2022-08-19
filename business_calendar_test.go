@@ -337,37 +337,3 @@ func Test_businessCalendar_ConsistencyChecks(t *testing.T) {
 		}
 	})
 }
-
-func BenchmarkShiftBusinessDays(b *testing.B) {
-	calendar := newBusinessCalendar()
-	startingDate := date.New(2017, time.November, 9)
-
-	for _, bc := range []struct {
-		name  string
-		shift int
-	}{
-		{
-			"add 17 days",
-			17,
-		},
-		{
-			"remove 17 days",
-			-17,
-		},
-		{
-			"add 7778 days",
-			17,
-		},
-		{
-			"remove 7778 days",
-			17,
-		},
-	} {
-		bc := bc
-		b.Run(bc.name, func(b *testing.B) {
-			for n := 0; n < b.N; n++ {
-				_ = calendar.add(startingDate, bc.shift)
-			}
-		})
-	}
-}
