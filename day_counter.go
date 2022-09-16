@@ -16,7 +16,7 @@ type dayCounter interface {
 	add(origin date.Date, days int) date.Date
 }
 
-func newDayCounter(convention Convention) dayCounter {
+func newDayCounter(convention Convention) dayCounter { //nolint:ireturn
 	switch convention {
 	case BusinessDays:
 		return newBusinessCalendar()
