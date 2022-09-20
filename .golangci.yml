@@ -10,11 +10,21 @@ linters:
     - nlreturn
     - wsl
     - varnamelen
-    - scopelint # deprecated
-    - golint # deprecated
-    - gomoddirectives # deprecated
-    - interfacer # deprecated
-    - maligned # deprecated
+    # Deprecated
+    - scopelint
+    - golint
+    - gomoddirectives
+    - interfacer
+    - maligned
+    - varcheck
+    - deadcode
+    - structcheck
+    - nosnakecase
+    - ifshort
+    # Disabled because of generics
+    - rowserrcheck
+    - sqlclosecheck
+    - wastedassign
 
 issues:
   exclude-rules:
