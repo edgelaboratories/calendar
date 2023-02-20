@@ -2,7 +2,7 @@ COVERAGE_OUT ?= bin/cover.out
 
 .PHONY: fmt
 fmt:
-	go mod tidy -go=1.17
+	go mod tidy
 	gofumpt -w .
 
 .PHONY: lint
