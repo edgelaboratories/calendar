@@ -1,6 +1,50 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "local>edgelaboratories/renovate-config:quant-engine"
+  "dependencyDashboard": true,
+  "labels": [
+    "dependencies"
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "security"
+    ]
+  },
+  "schedule": [
+    "before 5am on Wednesday"
+  ],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ],
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "bump"
+      ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all"
+    },
+    {
+      "matchDatasources": [
+        "go",
+        "golang-version"
+      ],
+      "groupName": "go packages",
+      "groupSlug": "go-packages"
+    },
+    {
+      "matchPackageNames": [
+        "go"
+      ],
+      "groupName": "go version",
+      "groupSlug": "go"
+    }
   ]
 }
