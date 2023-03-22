@@ -21,6 +21,7 @@ linters:
     - structcheck
     - nosnakecase
     - ifshort
+    - musttag
     # Disabled because of generics
     - rowserrcheck
     - sqlclosecheck
