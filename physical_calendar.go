@@ -13,7 +13,7 @@ func newPhysicalCalendar() *physicalCalendar {
 // isActive returns whether the input date is active according
 // to the physical calendar. By definition the result is true
 // for every input date.
-func (c physicalCalendar) isActive(date date.Date) bool {
+func (c physicalCalendar) isActive(date.Date) bool {
 	return true
 }
 
