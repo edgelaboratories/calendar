@@ -1,7 +1,6 @@
 package calendar
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -9,7 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_physicalCalendar_isActive(t *testing.T) {
+func Test_physicalCalendar_IsActive(t *testing.T) {
+	t.Parallel()
+
 	calendar := newPhysicalCalendar()
 
 	for _, tc := range []struct {
@@ -33,15 +34,19 @@ func Test_physicalCalendar_isActive(t *testing.T) {
 			true,
 		},
 	} {
-		assert.Equal(t, tc.expected, calendar.isActive(tc.date))
+		assert.Equal(t, tc.expected, calendar.IsActive(tc.date))
 	}
 }
 
-func Test_physicalCalendar_daysInYear(t *testing.T) {
-	assert.Equal(t, 365, newPhysicalCalendar().daysInYear())
+func Test_physicalCalendar_DaysInYear(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, 365, newPhysicalCalendar().DaysInYear())
 }
 
-func Test_physicalCalendar_add(t *testing.T) {
+func Test_physicalCalendar_Add(t *testing.T) {
+	t.Parallel()
+
 	calendar := newPhysicalCalendar()
 
 	for _, tc := range []struct {
@@ -65,14 +70,13 @@ func Test_physicalCalendar_add(t *testing.T) {
 			date.New(2020, time.September, 5),
 		},
 	} {
-		tc := tc
-		t.Run(fmt.Sprintf("from %s plus %d", tc.origin, tc.days), func(t *testing.T) {
-			assert.Equal(t, tc.expected, calendar.add(tc.origin, tc.days))
-		})
+		assert.Equal(t, tc.expected, calendar.Add(tc.origin, tc.days))
 	}
 }
 
-func Test_physicalCalendar_daysBetween(t *testing.T) {
+func Test_physicalCalendar_DaysBetween(t *testing.T) {
+	t.Parallel()
+
 	calendar := newPhysicalCalendar()
 
 	for _, tc := range []struct {
@@ -96,6 +100,6 @@ func Test_physicalCalendar_daysBetween(t *testing.T) {
 			29,
 		},
 	} {
-		assert.Equal(t, tc.expected, calendar.daysBetween(tc.from, tc.to))
+		assert.Equal(t, tc.expected, calendar.DaysBetween(tc.from, tc.to))
 	}
 }

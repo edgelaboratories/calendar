@@ -8,7 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_businessCalendar_isActive(t *testing.T) {
+func Test_businessCalendar_IsActive(t *testing.T) {
+	t.Parallel()
+
 	calendar := newBusinessCalendar()
 
 	for _, tc := range []struct {
@@ -32,15 +34,19 @@ func Test_businessCalendar_isActive(t *testing.T) {
 			true,
 		},
 	} {
-		assert.Equal(t, tc.expected, calendar.isActive(tc.date))
+		assert.Equal(t, tc.expected, calendar.IsActive(tc.date))
 	}
 }
 
-func Test_businessCalendar_daysInYear(t *testing.T) {
-	assert.Equal(t, 252, newBusinessCalendar().daysInYear())
+func Test_businessCalendar_DaysInYear(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, 252, newBusinessCalendar().DaysInYear())
 }
 
-func Test_businessCalendar_add(t *testing.T) {
+func Test_businessCalendar_Add(t *testing.T) {
+	t.Parallel()
+
 	calendar := newBusinessCalendar()
 
 	for _, tc := range []struct {
@@ -89,11 +95,13 @@ func Test_businessCalendar_add(t *testing.T) {
 			date.New(2020, time.September, 7),
 		},
 	} {
-		assert.Equal(t, tc.expected, calendar.add(tc.origin, tc.days))
+		assert.Equal(t, tc.expected, calendar.Add(tc.origin, tc.days))
 	}
 }
 
-func Test_businessCalendar_daysBetween(t *testing.T) {
+func Test_businessCalendar_DaysBetween(t *testing.T) {
+	t.Parallel()
+
 	calendar := newBusinessCalendar()
 
 	for _, tc := range []struct {
@@ -137,12 +145,14 @@ func Test_businessCalendar_daysBetween(t *testing.T) {
 			20,
 		},
 	} {
-		assert.Equal(t, tc.expected, calendar.daysBetween(tc.from, tc.to))
-		assert.Equal(t, -tc.expected, calendar.daysBetween(tc.to, tc.from))
+		assert.Equal(t, tc.expected, calendar.DaysBetween(tc.from, tc.to))
+		assert.Equal(t, -tc.expected, calendar.DaysBetween(tc.to, tc.from))
 	}
 }
 
 func Test_businessCalendar_DaysBetween_AcrossWeekend(t *testing.T) {
+	t.Parallel()
+
 	// The start date is a Friday. Shift the current date
 	// week by week until the end date is reached one year after.
 	// Notice that the DaysBetween function includes the arrival
@@ -161,21 +171,23 @@ func Test_businessCalendar_DaysBetween_AcrossWeekend(t *testing.T) {
 		// Get the days across the weekend and check they're consistent.
 		saturday := friday.Add(1)
 		sunday := friday.Add(2)
-		monday := calendar.add(friday, 1)
+		monday := calendar.Add(friday, 1)
 		assert.Equal(t, friday.Add(3), monday)
 
 		// There's no business days from a business day to a non-business day.
-		assert.Equal(t, 0, calendar.daysBetween(friday, saturday))
-		assert.Equal(t, 0, calendar.daysBetween(friday, sunday))
-		assert.Equal(t, 1, calendar.daysBetween(friday, monday))
+		assert.Equal(t, 0, calendar.DaysBetween(friday, saturday))
+		assert.Equal(t, 0, calendar.DaysBetween(friday, sunday))
+		assert.Equal(t, 1, calendar.DaysBetween(friday, monday))
 
 		// There is one business day from a non-business day to a business day.
-		assert.Equal(t, 1, calendar.daysBetween(saturday, monday))
-		assert.Equal(t, 1, calendar.daysBetween(sunday, monday))
+		assert.Equal(t, 1, calendar.DaysBetween(saturday, monday))
+		assert.Equal(t, 1, calendar.DaysBetween(sunday, monday))
 	}
 }
 
 func Test_businessCalendar_isWeekend(t *testing.T) {
+	t.Parallel()
+
 	calendar := newBusinessCalendar()
 
 	// Dates range from Friday to Monday.
@@ -186,6 +198,8 @@ func Test_businessCalendar_isWeekend(t *testing.T) {
 }
 
 func Test_businessCalendar_isBusinessDay(t *testing.T) {
+	t.Parallel()
+
 	calendar := newBusinessCalendar()
 
 	// Dates range from Friday to Monday.
@@ -196,6 +210,8 @@ func Test_businessCalendar_isBusinessDay(t *testing.T) {
 }
 
 func Test_businessCalendar_closestBusinessDay(t *testing.T) {
+	t.Parallel()
+
 	calendar := newBusinessCalendar()
 
 	for _, tc := range []struct {
@@ -239,32 +255,38 @@ func Test_businessCalendar_closestBusinessDay(t *testing.T) {
 }
 
 func Test_businessCalendar_ConsistencyChecks(t *testing.T) {
+	t.Parallel()
+
 	calendar := newBusinessCalendar()
 
 	t.Run("complete week", func(t *testing.T) {
+		t.Parallel()
+
 		origin := date.New(2017, time.January, 9)
 		for j := 0; j < 7; j++ {
 			current := origin.Add(j)
 
 			for i := 1; i <= 256; i++ {
-				to := calendar.add(current, i)
-				from := calendar.add(to, -i)
+				to := calendar.Add(current, i)
+				from := calendar.Add(to, -i)
 
 				// Forward-shifted date by i days should not equal the current date.
 				assert.False(t, current.Equal(to))
 
 				// Ensure between current/from and to there are exactly i business days.
-				assert.Equal(t, i, calendar.daysBetween(current, to))
-				assert.Equal(t, i, calendar.daysBetween(from, to))
+				assert.Equal(t, i, calendar.DaysBetween(current, to))
+				assert.Equal(t, i, calendar.DaysBetween(from, to))
 
 				// Ensure forward and backward shifts are consistent.
-				assert.True(t, calendar.add(from, i).Equal(to))
-				assert.True(t, calendar.add(to, -i).Equal(from))
+				assert.True(t, calendar.Add(from, i).Equal(to))
+				assert.True(t, calendar.Add(to, -i).Equal(from))
 			}
 		}
 	})
 
 	t.Run("zero shift", func(t *testing.T) {
+		t.Parallel()
+
 		var (
 			thursday = date.New(2018, time.August, 30)
 			friday   = thursday.Add(1)
@@ -273,13 +295,15 @@ func Test_businessCalendar_ConsistencyChecks(t *testing.T) {
 			calendar = newBusinessCalendar()
 		)
 
-		assert.True(t, calendar.add(thursday, 0).Equal(thursday))
-		assert.True(t, calendar.add(friday, 0).Equal(friday))
-		assert.True(t, calendar.add(saturday, 0).Equal(friday))
-		assert.True(t, calendar.add(sunday, 0).Equal(friday))
+		assert.True(t, calendar.Add(thursday, 0).Equal(thursday))
+		assert.True(t, calendar.Add(friday, 0).Equal(friday))
+		assert.True(t, calendar.Add(saturday, 0).Equal(friday))
+		assert.True(t, calendar.Add(sunday, 0).Equal(friday))
 	})
 
 	t.Run("shift across weekend", func(t *testing.T) {
+		t.Parallel()
+
 		var (
 			from                = date.New(2018, time.August, 2)
 			businessBeforeTo    = date.New(2018, time.August, 31)
@@ -288,27 +312,31 @@ func Test_businessCalendar_ConsistencyChecks(t *testing.T) {
 			calendar            = newBusinessCalendar()
 		)
 
-		assert.Equal(t, calendar.daysBetween(from, to), businessDaysBetween)
-		assert.True(t, calendar.add(to, -businessDaysBetween).Equal(from))
+		assert.Equal(t, calendar.DaysBetween(from, to), businessDaysBetween)
+		assert.True(t, calendar.Add(to, -businessDaysBetween).Equal(from))
 		assert.True(t, calendar.previousBusinessDay(to).Equal(businessBeforeTo))
-		assert.True(t, calendar.add(from, businessDaysBetween).Equal(businessBeforeTo))
+		assert.True(t, calendar.Add(from, businessDaysBetween).Equal(businessBeforeTo))
 	})
 
 	t.Run("all shifts", func(t *testing.T) {
+		t.Parallel()
+
 		origin := date.New(2017, time.January, 9)
 		for i := 1; i <= 256; i++ {
-			to := calendar.add(origin, i)
-			from := calendar.add(to, -i)
+			to := calendar.Add(origin, i)
+			from := calendar.Add(to, -i)
 
 			assert.False(t, origin.Equal(to))
-			assert.Equal(t, i, calendar.daysBetween(origin, to))
-			assert.Equal(t, i, calendar.daysBetween(from, to))
-			assert.True(t, calendar.add(from, i).Equal(to))
-			assert.True(t, calendar.add(to, -i).Equal(from))
+			assert.Equal(t, i, calendar.DaysBetween(origin, to))
+			assert.Equal(t, i, calendar.DaysBetween(from, to))
+			assert.True(t, calendar.Add(from, i).Equal(to))
+			assert.True(t, calendar.Add(to, -i).Equal(from))
 		}
 	})
 
 	t.Run("closest business day", func(t *testing.T) {
+		t.Parallel()
+
 		// The end date is set 1024 business days (public holidays excluded)
 		// after start in this test.
 
@@ -330,10 +358,10 @@ func Test_businessCalendar_ConsistencyChecks(t *testing.T) {
 			assert.True(t, !calendar.isBusinessDay(current) || (from.Equal(current) && to.Equal(current)))
 			// When current is not a business day, it is assumed equal to the latest
 			// business day before it, so it always coincides with from.
-			assert.Equal(t, 0, calendar.daysBetween(from, current))
+			assert.Equal(t, 0, calendar.DaysBetween(from, current))
 			// Daily difference between from/current and to is equivalent.
-			assert.Equal(t, dayDiff, calendar.daysBetween(current, to))
-			assert.Equal(t, dayDiff, calendar.daysBetween(from, to))
+			assert.Equal(t, dayDiff, calendar.DaysBetween(current, to))
+			assert.Equal(t, dayDiff, calendar.DaysBetween(from, to))
 		}
 	})
 }

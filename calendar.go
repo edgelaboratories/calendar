@@ -2,41 +2,39 @@ package calendar
 
 import "github.com/fxtlabs/date"
 
+// dayCounter defines the properties of a calendar.
+type dayCounter interface {
+	// Convention returns the calendar convention.
+	Convention() Convention
+	// IsActive returns true if the input date is active.
+	IsActive(date date.Date) bool
+	// DaysInYear returns the calendar's standard year duration (in days).
+	DaysInYear() int
+	// DaysBetween computes the number of active dates between
+	// from (excluded) and to (included).
+	DaysBetween(from, to date.Date) int
+	// add adds an input number of active days to the input origin date.
+	// The days parameter is allowed to be negative.
+	// This method is idempotent for zero-days shifts.
+	Add(origin date.Date, days int) date.Date
+}
+
 // Calendar exposes functions to manipulate dates with respect to a calendar.
 type Calendar struct {
-	dayCounter dayCounter
-	convention Convention
+	dayCounter
 }
 
 // New returns a calendar based on the specified input convention.
 func New(convention Convention) *Calendar {
-	return &Calendar{
-		dayCounter: newDayCounter(convention),
-		convention: convention,
+	switch convention {
+	case CalendarDays:
+		return &Calendar{newPhysicalCalendar()}
+	case BusinessDays:
+		fallthrough
+
+	default:
+		return &Calendar{newBusinessCalendar()}
 	}
-}
-
-// IsActive returns true if the input date is active.
-func (c *Calendar) IsActive(date date.Date) bool {
-	return c.dayCounter.isActive(date)
-}
-
-// add adds an input number of active days to the input origin date.
-// The days parameter is allowed to be negative.
-// This method is idempotent for zero-days shifts.
-func (c *Calendar) Add(origin date.Date, days int) date.Date {
-	return c.dayCounter.add(origin, days)
-}
-
-// DaysBetween computes the number of active dates between
-// from (excluded) and to (included).
-func (c *Calendar) DaysBetween(from, to date.Date) int {
-	return c.dayCounter.daysBetween(from, to)
-}
-
-// DaysInYear returns the calendar's standard year duration (in days).
-func (c *Calendar) DaysInYear() int {
-	return c.dayCounter.daysInYear()
 }
 
 // LatestBefore returns the latest date before or equal to
@@ -47,7 +45,12 @@ func (c *Calendar) LatestBefore(date date.Date) date.Date {
 	return c.Add(date, 0)
 }
 
-// Convention returns the calendar convention.
-func (c *Calendar) Convention() Convention {
-	return c.convention
+// Next returns the next calendar date with respect to the input.
+func (c *Calendar) Next(date date.Date) date.Date {
+	return c.Add(date, 1)
+}
+
+// Previous returns the previous calendar date with respect to the input.
+func (c *Calendar) Previous(date date.Date) date.Date {
+	return c.Add(date, -1)
 }
