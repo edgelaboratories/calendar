@@ -9,23 +9,38 @@ import (
 )
 
 func Test_New(t *testing.T) {
-	t.Run("business", func(t *testing.T) {
-		_, ok := New(BusinessDays).dayCounter.(*businessCalendar)
-		assert.True(t, ok)
-	})
+	t.Parallel()
 
-	t.Run("physical", func(t *testing.T) {
-		_, ok := New(CalendarDays).dayCounter.(*physicalCalendar)
-		assert.True(t, ok)
-	})
+	for _, tc := range []struct {
+		name       string
+		convention Convention
+	}{
+		{
+			"business",
+			BusinessDays,
+		},
+		{
+			"physical",
+			CalendarDays,
+		},
+		{
+			"unspecified",
+			BusinessDays,
+		},
+	} {
+		tc := tc
 
-	t.Run("unspecified", func(t *testing.T) {
-		_, ok := New(Convention("unspecified")).dayCounter.(*businessCalendar)
-		assert.True(t, ok)
-	})
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.convention, New(tc.convention).Convention())
+		})
+	}
 }
 
 func Test_Calendar_Convention(t *testing.T) {
+	t.Parallel()
+
 	for _, convention := range []Convention{
 		CalendarDays,
 		BusinessDays,
@@ -35,6 +50,8 @@ func Test_Calendar_Convention(t *testing.T) {
 }
 
 func Test_Calendar_IsActive(t *testing.T) {
+	t.Parallel()
+
 	for _, tc := range []struct {
 		convention Convention
 		date       date.Date
@@ -61,11 +78,15 @@ func Test_Calendar_IsActive(t *testing.T) {
 }
 
 func Test_Calendar_DaysInYear(t *testing.T) {
+	t.Parallel()
+
 	assert.Equal(t, 252, New(BusinessDays).DaysInYear())
 	assert.Equal(t, 365, New(CalendarDays).DaysInYear())
 }
 
 func Test_Calendar_Add(t *testing.T) {
+	t.Parallel()
+
 	for _, tc := range []struct {
 		convention Convention
 		origin     date.Date
@@ -90,6 +111,8 @@ func Test_Calendar_Add(t *testing.T) {
 }
 
 func Test_Calendar_DaysBetween(t *testing.T) {
+	t.Parallel()
+
 	for _, tc := range []struct {
 		convention Convention
 		from       date.Date
@@ -119,23 +142,29 @@ func Benchmark_Calendar_Add(b *testing.B) {
 		days   = 365
 	)
 
-	b.Run("business", func(b *testing.B) {
-		c := New(BusinessDays)
+	for _, bc := range []struct {
+		name string
+		c    *Calendar
+	}{
+		{
+			"business",
+			New(BusinessDays),
+		},
+		{
+			"physical",
+			New(CalendarDays),
+		},
+	} {
+		bc := bc
 
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			_ = c.Add(origin, days)
-		}
-	})
-
-	b.Run("physical", func(b *testing.B) {
-		c := New(CalendarDays)
-
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			_ = c.Add(origin, days)
-		}
-	})
+		b.Run(bc.name, func(b *testing.B) {
+			b.RunParallel(func(p *testing.PB) {
+				for p.Next() {
+					_ = bc.c.Add(origin, days)
+				}
+			})
+		})
+	}
 }
 
 func Benchmark_Calendar_DaysBetween(b *testing.B) {
@@ -144,84 +173,114 @@ func Benchmark_Calendar_DaysBetween(b *testing.B) {
 		to   = date.New(2022, time.January, 1)
 	)
 
-	b.Run("business", func(b *testing.B) {
-		c := New(BusinessDays)
+	for _, bc := range []struct {
+		name string
+		c    *Calendar
+	}{
+		{
+			"business",
+			New(BusinessDays),
+		},
+		{
+			"physical",
+			New(CalendarDays),
+		},
+	} {
+		bc := bc
 
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			_ = c.DaysBetween(from, to)
-		}
-	})
-
-	b.Run("physical", func(b *testing.B) {
-		c := New(CalendarDays)
-
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			_ = c.DaysBetween(from, to)
-		}
-	})
+		b.Run(bc.name, func(b *testing.B) {
+			b.RunParallel(func(p *testing.PB) {
+				for p.Next() {
+					_ = bc.c.DaysBetween(from, to)
+				}
+			})
+		})
+	}
 }
 
-func Test_Calendar_LatestBefore(t *testing.T) {
+func Test_Calendar_LatestBefore_Next_Previous(t *testing.T) {
+	t.Parallel()
+
 	for _, tc := range []struct {
 		name     string
 		calendar *Calendar
 		date     date.Date
-		expected date.Date
+		latest   date.Date
+		previous date.Date
+		next     date.Date
 	}{
 		{
 			"calendar/business day",
 			New(CalendarDays),
 			date.New(2021, time.September, 30),
 			date.New(2021, time.September, 30),
+			date.New(2021, time.September, 29),
+			date.New(2021, time.October, 1),
 		},
 		{
 			"calendar/saturday",
 			New(CalendarDays),
 			date.New(2021, time.October, 2),
 			date.New(2021, time.October, 2),
+			date.New(2021, time.October, 1),
+			date.New(2021, time.October, 3),
 		},
 		{
 			"calendar/sunday",
 			New(CalendarDays),
 			date.New(2021, time.October, 3),
 			date.New(2021, time.October, 3),
+			date.New(2021, time.October, 2),
+			date.New(2021, time.October, 4),
 		},
 		{
 			"calendar/monday",
 			New(CalendarDays),
 			date.New(2021, time.October, 4),
 			date.New(2021, time.October, 4),
+			date.New(2021, time.October, 3),
+			date.New(2021, time.October, 5),
 		},
 		{
 			"business/business day",
 			New(BusinessDays),
 			date.New(2021, time.September, 30),
 			date.New(2021, time.September, 30),
+			date.New(2021, time.September, 29),
+			date.New(2021, time.October, 1),
 		},
 		{
 			"business/saturday",
 			New(BusinessDays),
 			date.New(2021, time.October, 2),
 			date.New(2021, time.October, 1),
+			date.New(2021, time.September, 30),
+			date.New(2021, time.October, 4),
 		},
 		{
 			"business/sunday",
 			New(BusinessDays),
 			date.New(2021, time.October, 3),
 			date.New(2021, time.October, 1),
+			date.New(2021, time.September, 30),
+			date.New(2021, time.October, 4),
 		},
 		{
 			"business/monday",
 			New(BusinessDays),
 			date.New(2021, time.October, 4),
 			date.New(2021, time.October, 4),
+			date.New(2021, time.October, 1),
+			date.New(2021, time.October, 5),
 		},
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.calendar.LatestBefore(tc.date))
+			t.Parallel()
+
+			assert.Equal(t, tc.latest, tc.calendar.LatestBefore(tc.date))
+			assert.Equal(t, tc.previous, tc.calendar.Previous(tc.date))
+			assert.Equal(t, tc.next, tc.calendar.Next(tc.date))
 		})
 	}
 }
