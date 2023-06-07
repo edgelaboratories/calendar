@@ -26,6 +26,7 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - wastedassign
+    - depguard # Replaced by gomodguard
 
 issues:
   exclude-rules:
@@ -42,3 +43,8 @@ linters-settings:
       rules:
         json: camel
         yaml: snake
+
+  gomodguard:
+    blocked:
+      modules:
+        - github.com/pkg/errors:
