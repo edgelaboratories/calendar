@@ -13,7 +13,7 @@ go get -u github.com/edgelaboratories/calendar
 
 ## Requirements
 
-- [go 1.20.x](https://golang.org/dl/)
+- [go 1.21.x](https://golang.org/dl/)
 
 ## Test
 
