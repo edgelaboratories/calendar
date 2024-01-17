@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/fxtlabs/date"
+	"github.com/edgelaboratories/date"
 	"github.com/stretchr/testify/assert"
 )
 

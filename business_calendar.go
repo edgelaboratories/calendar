@@ -3,7 +3,7 @@ package calendar
 import (
 	"time"
 
-	"github.com/fxtlabs/date"
+	"github.com/edgelaboratories/date"
 )
 
 // businessCalendar is a calendar whose active days are working ones.
