@@ -1,6 +1,6 @@
 package calendar
 
-import "github.com/fxtlabs/date"
+import "github.com/edgelaboratories/date"
 
 // dayCounter defines the properties of a calendar.
 type dayCounter interface {

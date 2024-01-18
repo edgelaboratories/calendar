@@ -1,6 +1,6 @@
 package calendar
 
-import "github.com/fxtlabs/date"
+import "github.com/edgelaboratories/date"
 
 // physicalCalendar defines a calendar in which all days
 // (including weekends) are active.

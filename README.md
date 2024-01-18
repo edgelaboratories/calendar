@@ -27,7 +27,7 @@ Check out the [`Makefile`](Makefile) for more information.
 
 ## Purpose
 
-This project aims at offering a unique, simple and fast module to manage calendars with daily granularity. Dates representation is based on [`github.com/fxtlabs/date`](https://github.com/fxtlabs/date).
+This project aims at offering a unique, simple and fast module to manage calendars with daily granularity. Dates representation is based on [`github.com/edgelaboratories/date`](https://github.com/edgelaboratories/date).
 
 This project **doesn't aim** at supporting daycount conventions. Have a look at [`github.com/edgelaboratories/daycount`](https://github.com/edgelaboratories/daycount) instead.
 
@@ -39,7 +39,7 @@ package main
 import (
     "fmt"
     "github.com/edgelaboratories/calendar"
-    "github.com/fxtlabs/date"
+    "github.com/edgelaboratories/date"
 )
 
 func main() {
